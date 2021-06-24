@@ -12,7 +12,10 @@ import (
 	"github.com/xsoroton/entain/racing/proto/racing"
 )
 
-const visible = 1
+const (
+	RaceStatusOpen   = "OPEN"
+	RaceStatusClosed = "CLOSED"
+)
 
 // RacesRepo provides repository access to races.
 type RacesRepo interface {
@@ -114,6 +117,7 @@ func (m *racesRepo) scanRaces(
 	rows *sql.Rows,
 ) ([]*racing.Race, error) {
 	var races []*racing.Race
+	now := time.Now()
 
 	for rows.Next() {
 		var race racing.Race
@@ -133,6 +137,12 @@ func (m *racesRepo) scanRaces(
 		}
 
 		race.AdvertisedStartTime = ts
+
+		if now.After(ts.AsTime()) {
+			race.Status = RaceStatusClosed
+		} else {
+			race.Status = RaceStatusOpen
+		}
 
 		races = append(races, &race)
 	}
