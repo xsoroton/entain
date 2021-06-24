@@ -90,6 +90,23 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
 
+	switch filter.SortByFieldName {
+	case "id":
+		query += " ORDER BY id"
+	case "meeting_id":
+		query += " ORDER BY meeting_id"
+	case "name":
+		query += " ORDER BY name"
+	case "number":
+		query += " ORDER BY number"
+	case "visible":
+		query += " ORDER BY visible"
+	case "advertised_start_time":
+		query += " ORDER BY advertised_start_time"
+	default:
+		query += " ORDER BY advertised_start_time"
+	}
+
 	return query, args
 }
 
