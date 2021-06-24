@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 	"strings"
 	"sync"
 	"time"
@@ -21,6 +23,9 @@ const (
 type RacesRepo interface {
 	// Init will initialise our races repository.
 	Init() error
+
+	// Get single race by id
+	GetRace(filter *racing.GetRaceRequest) (*racing.Race, error)
 
 	// List will return a list of races.
 	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
@@ -46,6 +51,34 @@ func (r *racesRepo) Init() error {
 	})
 
 	return err
+}
+
+func (r *racesRepo) GetRace(filter *racing.GetRaceRequest) (*racing.Race, error) {
+	var (
+		err   error
+		query string
+		args  []interface{}
+	)
+
+	query = getRaceQueries()[racesList]
+	query += fmt.Sprintf(" WHERE id = %d", filter.Id)
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	races, err := r.scanRaces(rows)
+	if err != nil {
+		return nil, err
+	}
+	if len(races) == 0 {
+		return nil, nil
+	}
+	// just in case
+	if len(races) != 1 {
+		log.Fatal("single row expected")
+	}
+	return races[0], nil
 }
 
 func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error) {
