@@ -6,14 +6,16 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/xsoroton/entain/api/proto/racing"
 	log "github.com/sirupsen/logrus"
+	"github.com/xsoroton/entain/api/proto/racing"
+	"github.com/xsoroton/entain/api/proto/sport"
 	"google.golang.org/grpc"
 )
 
 var (
-	apiEndpoint  = flag.String("api-endpoint", "localhost:8000", "API endpoint")
-	grpcEndpoint = flag.String("grpc-endpoint", "localhost:9000", "gRPC server endpoint")
+	apiEndpoint        = flag.String("api-endpoint", "localhost:8000", "API endpoint")
+	racingGRPCEndpoint = flag.String("racing-grpc-endpoint", "localhost:9000", "racing - gRPC server endpoint")
+	sportsGRPCEndpoint = flag.String("sports-grpc-endpoint", "localhost:5000", "sports - gRPC server endpoint")
 )
 
 func main() {
@@ -30,10 +32,19 @@ func run() error {
 	defer cancel()
 
 	mux := runtime.NewServeMux()
+
 	if err := racing.RegisterRacingHandlerFromEndpoint(
 		ctx,
 		mux,
-		*grpcEndpoint,
+		*racingGRPCEndpoint,
+		[]grpc.DialOption{grpc.WithInsecure()},
+	); err != nil {
+		return err
+	}
+	if err := sport.RegisterSportsHandlerFromEndpoint(
+		ctx,
+		mux,
+		*sportsGRPCEndpoint,
 		[]grpc.DialOption{grpc.WithInsecure()},
 	); err != nil {
 		return err
