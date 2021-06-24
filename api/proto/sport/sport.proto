@@ -1,0 +1,69 @@
+syntax = "proto3";
+package sport;
+
+option go_package = "/sport";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service Sports {
+  // GetSport by ID
+  rpc GetSport(GetSportRequest) returns (GetSportResponse) {
+    option (google.api.http) = { get: "/v1/sport/{id}" };
+  }
+
+  // ListSports returns a list of all sports.
+  rpc ListSports(ListSportsRequest) returns (ListSportsResponse) {
+    option (google.api.http) = { post: "/v1/list-sports", body: "*" };
+  }
+}
+
+/* Requests/Responses */
+
+// Request for GetSport call
+message GetSportRequest {
+  int64 id = 1;
+}
+
+// Response for GetSport call
+message GetSportResponse {
+  Sport sport = 1;
+}
+
+
+// Request for ListSports call.
+message ListSportsRequest {
+  ListSportsRequestFilter filter = 1;
+}
+
+// Response to ListSports call.
+message ListSportsResponse {
+  repeated Sport sports = 1;
+}
+
+// Filter for listing sports.
+message ListSportsRequestFilter {
+  repeated int64 meeting_ids = 1;
+  bool visible_only = 2;
+  string sort_by_field_name = 3;
+}
+
+/* Resources */
+
+// A sport resource.
+message Sport {
+  // ID represents a unique identifier for the sport.
+  int64 id = 1;
+  // MeetingID represents a unique identifier for the sports meeting.
+  int64 meeting_id = 2;
+  // Name is the official name given to the sport.
+  string name = 3;
+  // Number represents the number of the sport.
+  int64 number = 4;
+  // Visible represents whether or not the sport is visible.
+  bool visible = 5;
+  // AdvertisedStartTime is the time the sport is advertised to run.
+  google.protobuf.Timestamp advertised_start_time = 6;
+  // Sport status e.g. OPEN, CLOSED
+  string status = 7;
+}

@@ -49,6 +49,15 @@ go build && ./racing
 ➜ INFO[0000] gRPC server listening on: localhost:9000
 ```
 
+2.1 In a terminal window, start our ports service...
+
+```bash
+cd ./sport
+
+go build && ./sport
+➜ INFO[0000] gRPC server listening on: localhost:5000
+```
+
 3. In another terminal window, start our api service...
 
 ```bash
@@ -62,6 +71,15 @@ go build && ./api
 
 ```bash
 curl -X "POST" "http://localhost:8000/v1/list-races" \
+     -H 'Content-Type: application/json' \
+     -d $'{
+  "filter": {}
+}'
+```
+
+4.1 Make a request for sports ... 
+```bash
+curl -X "POST" "http://localhost:8000/v1/list-sports" \
      -H 'Content-Type: application/json' \
      -d $'{
   "filter": {}
